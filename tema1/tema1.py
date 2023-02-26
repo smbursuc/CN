@@ -96,7 +96,7 @@ def strassen(A, B, n):
         C21 = matrix_addition(P2,P4)
         C22 = matrix_addition(matrix_subtraction(matrix_addition(P1,P3),P2),P6)
 
-        C = [[C11,C12],[C21,C22]]
+        C = np.concatenate((np.concatenate((C11,C12),axis=1),np.concatenate((C21,C22),axis=1)),axis=0)
         return C
     
 # A = [[1,2],[3,4]]

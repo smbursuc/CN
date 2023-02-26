@@ -5,4 +5,4 @@ B = np.matrix([[5, 6], [7, 8]])
 
 print(np.add(A, B))
 
-print(A[0])
+print(np.concatenate((A, B), axis=0))
