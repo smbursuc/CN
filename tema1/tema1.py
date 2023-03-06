@@ -107,6 +107,23 @@ def strassen(A, B, n):
         C = np.concatenate((np.concatenate((C11,C12),axis=1),np.concatenate((C21,C22),axis=1)),axis=0)
         return C
     
+
+def nearest_power_of_2(n):
+    return int(2**(math.ceil(math.log(n,2))))
+
+def matrix_padding(A, n):
+    if n == 2:
+        return A
+    else:
+        m = nearest_power_of_2(n)
+        A = np.concatenate((A, np.zeros((m-n, n))), axis=0)
+        A = np.concatenate((A, np.zeros((m, m-n))), axis=1)
+        return A
+    
+
+def extract_padding(A, n):
+    return A[:n,:n]
+    
 # A = [[1,2],[3,4]]
 # B = [[5,6],[7,8]]
 
@@ -130,5 +147,27 @@ B = np.matrix(B)
 
 result = strassen(A,B,8)
 pprint.pprint(result)
+
+
+A = [[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15],[16,17,18,19,20],[21,22,23,24,25]]
+B = [[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15],[16,17,18,19,20],[21,22,23,24,25]]
+
+A = np.matrix(A)
+B = np.matrix(B)
+
+A = matrix_padding(A, 5)
+B = matrix_padding(B, 5)
+
+result = strassen(A,B,nearest_power_of_2(5))
+# print(A)
+# print(B)
+print(result)
+result = extract_padding(result, 5)
+pprint.pprint(result)
+
+
+
+
+
 
 
