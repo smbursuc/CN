@@ -21,23 +21,21 @@ def generate_random_matrix(n):
 
 def compute_cholesky(A):
     n = A.shape[0]
-    A_init = np.copy(A)
-    A_copy = np.copy(A)
     d = np.zeros(n)
 
     for p in range(n):
         dp = A_init[p, p]
         for k in range(p):
-            dp = dp - d[k] * A_copy[p, k] ** 2
+            dp = dp - d[k] * A[p, k] ** 2
         d[p] = dp
 
         for i in range(p + 1, n):
             s = 0
             for k in range(p):
-                s = s + d[k] * A_init[i, k] * A_copy[p, k]
-            A_copy[i, p] = (A_init[i, p] - s) / dp
+                s = s + d[k] * A_init[i, k] * A[p, k]
+            A[i, p] = (A_init[i, p] - s) / dp
 
-    return A_copy, d
+    return A, d
 
 
 def matrix_determinant(A):
@@ -78,7 +76,6 @@ def get_L_matrix(A):
 
 def solve_equation_system(A, b):
     n = A.shape[0]
-    A, D = compute_cholesky(A)
     L = get_L_matrix(A)
     LT = matrix_transpose(L)
     y = np.zeros(n)
@@ -118,24 +115,25 @@ if action == "1":
     while i > 0:
         n = 3
         A = generate_random_matrix(n)
-        eigvals = np.linalg.eigvals(A)
+        A_init = np.copy(A)
+        # eigvals = np.linalg.eigvals(A_init)
         # if all(eigvals > 0):
         #     print("The matrix is positive definite")
         # else:
         #     print("The matrix is not positive definite")
 
-        # if is_diagonally_dominant(A):
+        # if is_diagonally_dominant(A_init):
         #     print("The matrix is diagonally dominant")
         # else:
         #     print("The matrix is not diagonally dominant")
         b = np.random.rand(n)
-        # print("Matricea initiala:\n", A)
+        # print("Matricea initiala:\n", A_init)
         # print("Descompunerea Cholesky a matricei predefinite este:\n")
-        A_Cholesky, D = compute_cholesky(A)
+        A, D = compute_cholesky(A)
         # print("A:\n", A_Cholesky)
         # print("D:\n", D)
 
-        L = get_L_matrix(A_Cholesky)
+        L = get_L_matrix(A)
         # print("L\n", L)
         LT = matrix_transpose(L)
         # print("LT:\n", LT)
@@ -150,41 +148,43 @@ if action == "1":
         diagonal_matrix_determiant = np.prod(D)
         determinant = matrix_determinant(L) * diagonal_matrix_determiant * matrix_determinant(LT)
 
-        # print("Determinantul matricei predefinite fara descompunere este:\n", matrix_determinant(A))
+        # print("Determinantul matricei predefinite fara descompunere este:\n", matrix_determinant(A_init))
         # print("Determinantul matricei predefinite folosind descompunerea este:\n", determinant)
 
         # print("Solutie pentru A si b:\n")
 
         # print("Solutie pentru A si b folosind numpy:\n")
 
-        P, L, U = la.lu(A)
+        P, L1, U = la.lu(A)
         # print("Descompunerea LU a matricei predefinite este:\n")
-        # print("L:\n", L)
+        # print("L:\n", L1)
         # print("U:\n", U)
 
-        # print("Solutia folosind numpy:\n", solve_equation_system_numpy(A, b))
+        # print("Solutia folosind numpy:\n", solve_equation_system_numpy(A_init, b))
 
         X_Cholesky = solve_equation_system(A, b)
-        print("Verificare calcul norma rezultat:",la.norm(A.dot(X_Cholesky) - b))
-        #print(la.norm(A.dot(X_Cholesky) - b))
+        print("Verificare calcul norma rezultat:", la.norm(A_init.dot(X_Cholesky) - b))
+        # print(la.norm(A.dot(X_Cholesky) - b))
 
         # verify if the solution is correct
-        print("Verificare calcul norma rezultat folosind numpy:",la.norm(A.dot(solve_equation_system_numpy(A, b)) - b),"\n")
-        #print(la.norm(A.dot(solve_equation_system_numpy(A, b)) - b))
+        print("Verificare calcul norma rezultat folosind numpy:",
+              la.norm(A_init.dot(solve_equation_system_numpy(A_init, b)) - b), "\n")
+        # print(la.norm(A_init.dot(solve_equation_system_numpy(A_init, b)) - b))
 
         # print("X_Cholesky:\n", X_Cholesky)
-        # print("X_linalg:\n", np.linalg.solve(A, b))
-        i-=1
+        # print("X_linalg:\n", np.linalg.solve(A_init, b))
+        i -= 1
 
 elif action == "2":
     A = np.array([[1, 2.5, 3], [2.5, 8.25, 15.5], [3, 15.5, 43]])
-    print("Matricea initiala:\n", A)
+    A_init = np.copy(A)
+    print("Matricea initiala:\n", A_init)
     print("Descompunerea Cholesky a matricei predefinite este:\n")
-    A_Cholesky, D = compute_cholesky(A)
-    print("A:\n", A_Cholesky)
+    A, D = compute_cholesky(A)
+    print("A:\n", A)
     print("D:\n", D)
 
-    L = get_L_matrix(A_Cholesky)
+    L = get_L_matrix(A)
     print("L\n", L)
     LT = matrix_transpose(L)
     print("LT:\n", LT)
@@ -199,30 +199,30 @@ elif action == "2":
     diagonal_matrix_determiant = np.prod(D)
     determinant = matrix_determinant(L) * diagonal_matrix_determiant * matrix_determinant(LT)
 
-    print("Determinantul matricei predefinite fara descompunere este:\n", matrix_determinant(A))
+    print("Determinantul matricei predefinite fara descompunere este:\n", matrix_determinant(A_init))
     print("Determinantul matricei predefinite folosind descompunerea este:\n", determinant)
 
     print("Solutie pentru A si b = [12, 38, 68]:\n")
 
     print("Solutie pentru A si b = [12, 38, 68] folosind numpy:\n")
 
-    P, L, U = la.lu(A)
+    P, L1, U = la.lu(A_init)
     print("Descompunerea LU a matricei predefinite este:\n")
-    print("L:\n", L)
+    print("L:\n", L1)
     print("U:\n", U)
 
-    print("Solutia folosind numpy:\n", solve_equation_system_numpy(A, np.array([12, 38, 68])))
+    print("Solutia folosind numpy:\n", solve_equation_system_numpy(A_init, np.array([12, 38, 68])))
 
     print("Verificare calcul norma rezultat:\n")
     X_Cholesky = solve_equation_system(A, np.array([12, 38, 68]))
-    print(la.norm(A.dot(X_Cholesky) - np.array([12, 38, 68])))
+    print(la.norm(A_init.dot(X_Cholesky) - np.array([12, 38, 68])))
 
     # verify if the solution is correct
     print("Verificare calcul norma rezultat folosind numpy:\n")
-    print(la.norm(A.dot(solve_equation_system_numpy(A, np.array([12, 38, 68]))) - np.array([12, 38, 68])))
+    print(la.norm(A_init.dot(solve_equation_system_numpy(A_init, np.array([12, 38, 68]))) - np.array([12, 38, 68])))
 
     print("X_Cholesky:\n", X_Cholesky)
-    print("X_linalg:\n", np.linalg.solve(A, np.array([12, 38, 68])))
+    print("X_linalg:\n", np.linalg.solve(A_init, np.array([12, 38, 68])))
 
 
 else:
