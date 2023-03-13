@@ -10,7 +10,7 @@ def generate_I_matrix(n):
 def householder(A, s):
     n = len(A)
     Q_ = generate_I_matrix(n)
-    epsilon = 1e-10
+    epsilon = 1e-6
     b = np.dot(A, s)
     for r in range(n-1):
         sigma = 0
