@@ -11,7 +11,7 @@ def householder(A, s):
     n = len(A)
     Q_ = generate_I_matrix(n)
     epsilon = 1e-6
-    b = np.dot(A, s)
+    b = calculate_b(A, s)
     for r in range(n-1):
         sigma = 0
         for i in range(r, n):
@@ -84,6 +84,12 @@ def inverse_of_matrix_householder(Q,R):
         A_inverse_columns[:, i] = x
     return A_inverse_columns
 
+def calculate_b(A,s):
+    b = np.zeros(len(A))
+    for i in range(len(A)):
+        for j in range(len(A)):
+            b[i] += A[i][j]*s[j]
+    return b
 
 def test_with_n(n):
     A = np.random.rand(n, n)
@@ -93,7 +99,7 @@ def test_with_n(n):
     A_copy = A.copy()
     #print(A,"\n")
     s = np.random.rand(n)
-    b = np.dot(A, s)
+    b = calculate_b(A,s)
     R, Q = householder(A, b)
     x_householder = solve_RxQTb(R, Q, b)
     Q, R = np.linalg.qr(A_copy)
@@ -112,15 +118,17 @@ def test_with_n(n):
 action = input("Pentru a testa random tasta 1, pentru cazul exemplu din pdf tasta 2")
 if(action == "1"):
     for n in range(10,100,10):
+        print("Test pentru matrice cu n=",n,"\n")
         test_with_n(n)
 else:
-    print("\nA initial:",np.array([[0, 0, 4], [1, 2, 3], [0, 1, 2]]))
+    print("\nA initial:\n",np.array([[0, 0, 4], [1, 2, 3], [0, 1, 2]]))
 
     R, Q = householder(np.array([[0, 0, 4], [1, 2, 3], [0, 1, 2]]),np.array([3, 2, 1]))
     print("\nQ folosind householder:\n",Q)
     print("\nR folosind householder:\n",R)
     A = np.array([[0, 0, 4], [1, 2, 3], [0, 1, 2]])
-    b = np.dot(A, np.array([3, 2, 1]))
+    #b = np.dot(A, np.array([3, 2, 1]))
+    b = calculate_b(A,np.array([3, 2, 1]))
     x_householder = solve_RxQTb(R, Q, b)
     print("\nSolutie folosind Householder:\n",x_householder)
 
