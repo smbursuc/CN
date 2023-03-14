@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.linalg as la
+import math
 
 
 def is_diagonally_dominant(matrix):
@@ -108,6 +109,28 @@ def solve_equation_system_numpy(A, b):
     x = la.lu_solve((LU, piv), b)
     return x
 
+def bonus(A):
+    A_init = A.copy()
+    A, d = compute_cholesky(A)
+    D_matrix_form = np.zeros((3, 3))
+    for i in range(3):
+        D_matrix_form[i, i] = D[i]
+    L = get_L_matrix(A)
+    LT = matrix_transpose(L)
+    LDLT = np.dot(L, np.dot(D_matrix_form, LT))
+    errs = 0
+    print(L)
+    print(D)
+    print(LT)
+    print("\nLDLT:\n",LDLT)
+    print("\nA:\n",A_init)
+    for i in range(len(A_init)):
+        for j in range(len(A_init)):
+            if(math.fabs(LDLT[i, j] - A_init[i, j]) > 1e-6):
+                errs += 1
+    
+    print("S-au gasit " + str(errs) + " erori in descompunerea Cholesky")
+
 
 action = input("Introduceti 1 pentru a genera o matrice random, introduceti 2 pentru a folosi matricea predefinita:")
 if action == "1":
@@ -175,6 +198,8 @@ if action == "1":
         # print("X_linalg:\n", np.linalg.solve(A_init, b))
         i -= 1
 
+        bonus(A_init)
+
 elif action == "2":
     A = np.array([[1, 2.5, 3], [2.5, 8.25, 15.5], [3, 15.5, 43]])
     A_init = np.copy(A)
@@ -223,6 +248,8 @@ elif action == "2":
 
     print("X_Cholesky:\n", X_Cholesky)
     print("X_linalg:\n", np.linalg.solve(A_init, np.array([12, 38, 68])))
+
+    bonus(A_init)
 
 
 else:
