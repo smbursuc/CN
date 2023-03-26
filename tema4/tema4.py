@@ -98,7 +98,6 @@ def gauss_seidel(A, b, kmax):
             aux_prev_value = x_gs[i]
             sum = 0.0
             elem_diag = 0
-            x_gs_copy = x_gs.copy()
             for j in range(len(A[i])):
                 if(A[i][j][1]==i):
                     elem_diag = A[i][j][0]
