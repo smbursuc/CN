@@ -38,42 +38,6 @@ def parse_sparse_matrix_file(file):
     return A
 
 
-def gauss_seidel_2_vectors(A, b, kmax):
-    #x_c = np.zeros(len(b))
-    x_c = np.zeros(len(b))
-    x_p = np.zeros(len(b))
-    # x_c = x_k+1 si x_p = x_k 
-    k = 0
-    delta_x = 0
-    while True:
-        epsilon = math.pow(10, -k)
-        x_p = x_c
-        # compute new x_c using x_p
-        for i in range(len(A)):
-            sum = 0.0
-            elem_diag = 0
-            for j in range(len(A[i])):
-                if(A[i][j][1]==i):
-                    elem_diag = A[i][j][0]
-            for j in range(len(A[i])):
-                if(A[i][j][0]!=elem_diag):
-                    sum += A[i][j][0]*x_p[A[i][j][1]]
-                    #print(A[i][j][0], x_p[A[i][j][1]], elem_diag)
-            x_c[i] = (b[i]-sum)/elem_diag
-        # compute delta_x
-        delta_x = np.linalg.norm(x_c-x_p)
-        k+=1
-        print(k)
-        if(delta_x < epsilon or delta_x>math.pow(10,8) or k > kmax):
-            break
-    if(delta_x<epsilon):
-        print("x:",x_c)
-        print("k: ",k)
-    else:
-        print("Divergence")
-    print("Norma ceruta:",np.linalg.norm(sparse_matrix_multiplication(A, x_c)-b))
-
-
 def sparse_matrix_multiplication(A, x):
     y = np.zeros(len(x))
     for i in range(len(A)):
@@ -84,7 +48,7 @@ def sparse_matrix_multiplication(A, x):
     return y
 
 
-def gauss_seidel(A, b, kmax):
+def gauss_seidel_2_vectors(A, b, kmax):
     #x_c = np.zeros(len(b))
     x_gs = np.zeros(len(b))
     # x_c = x_k+1 si x_p = x_k 
@@ -96,6 +60,45 @@ def gauss_seidel(A, b, kmax):
         for i in range(len(A)):
             sum = 0.0
             elem_diag = 0
+            x_gs_copy = x_gs.copy()
+            for j in range(len(A[i])):
+                if(A[i][j][1]==i):
+                    elem_diag = A[i][j][0]
+            for j in range(len(A[i])):
+                if(A[i][j][0]!=elem_diag):
+                    sum += A[i][j][0]*x_gs_copy[A[i][j][1]]
+                    #print(A[i][j][0], x_p[A[i][j][1]], elem_diag)
+            x_gs[i] = (b[i]-sum)/elem_diag
+        # compute delta_x
+        delta_x = np.linalg.norm(x_gs-x_gs_copy)
+        k+=1
+        print("Pas: ",k)
+        if(delta_x < epsilon or delta_x>math.pow(10,8) or k > kmax):
+            break
+        # if(k > kmax):
+        #     break
+    if(delta_x<epsilon):
+        print("x:",x_gs)
+        print("k: ",k)
+    else:
+        print("Divergence")
+    print("Norma ceruta:",np.linalg.norm(sparse_matrix_multiplication(A, x_gs)-b))
+
+def gauss_seidel(A, b, kmax):
+    #x_c = np.zeros(len(b))
+    x_gs = np.zeros(len(b))
+    # x_c = x_k+1 si x_p = x_k 
+    k = 0
+    epsilon = 1e-10
+    delta_x = 0
+    while True:
+        # compute new x_c using x_p
+        norm_partial = 0
+        for i in range(len(A)):
+            aux_prev_value = x_gs[i]
+            sum = 0.0
+            elem_diag = 0
+            x_gs_copy = x_gs.copy()
             for j in range(len(A[i])):
                 if(A[i][j][1]==i):
                     elem_diag = A[i][j][0]
@@ -104,21 +107,23 @@ def gauss_seidel(A, b, kmax):
                     sum += A[i][j][0]*x_gs[A[i][j][1]]
                     #print(A[i][j][0], x_p[A[i][j][1]], elem_diag)
             x_gs[i] = (b[i]-sum)/elem_diag
+
+            norm_partial += (x_gs[i] - aux_prev_value) ** 2
+        norm_partial = math.sqrt(norm_partial)
         # compute delta_x
-        delta_x = np.linalg.norm(x_gs-x_gs)
+        #delta_x = np.linalg.norm(x_gs-x_gs_copy)
         k+=1
         print("Pas: ",k)
-        # if(delta_x < epsilon or delta_x>math.pow(10,8) or k > kmax):
-        #     break
-        if(k > kmax):
+        if(norm_partial < epsilon or norm_partial>math.pow(10,8) or k > kmax):
             break
-    if(delta_x<epsilon):
+        # if(k > kmax):
+        #     break
+    if(norm_partial<epsilon):
         print("x:",x_gs)
         print("k: ",k)
     else:
         print("Divergence")
     print("Norma ceruta:",np.linalg.norm(sparse_matrix_multiplication(A, x_gs)-b))
-
 
 def parse_b_file(file):
     f = open(file, 'r')
