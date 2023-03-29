@@ -14,7 +14,7 @@ def generate_random_sparse_matrix(n):
                     A[i].append((val, j))
                 else:
                     chance = np.random.rand()
-                    if(chance<0.30):
+                    if(chance<0.40):
                         val = round(np.random.rand(),2) * 100
                         A[i].append((val, j))
                         A[j].append((val, i))
@@ -66,7 +66,6 @@ def is_symmetric(A):
             if i!=index:
                 #fac rounding pt ca in fisier nu a dat exact egale valorile
                 val1 = round(A[i][j][0], 4)
-                #print(val1)
                 for k in range(len(A[index])):
                     if A[index][k][1] == i:
                         val2 = round(A[index][k][0], 4)
@@ -77,7 +76,7 @@ def is_symmetric(A):
 
 def parse_files():
     # 2023 nu merge?
-    ends = ["512","1024"]
+    ends = ["512","1024","2023"]
     base_name = "m_rar_sim_2023_"
     for end in ends:
         file_name = base_name + end + ".txt"
@@ -135,11 +134,12 @@ def singular_value_decomposition(A):
     v = vt.T
     s_matrix_form = np.zeros((len(A_dense), len(A_dense)))
     for i in range(len(s)):
-        s_matrix_form[i][i] = s[i]
+        s_matrix_form[i][i] = 1/s[i]
+    print(s)
     mp_inverse = v.dot(s_matrix_form).dot(u.T)
     print("Moore-Penroe inverse",mp_inverse)
     b = np.random.random(len(mp_inverse))
-    x_i = np.linalg.solve(mp_inverse, b)
+    x_i = np.dot(mp_inverse, b)
     print("x_i:",x_i)
     print("||b-Ax||:",np.linalg.norm(b-np.dot(A_dense, x_i)))
     least_squares_pseudo_inverse = np.dot(np.linalg.inv(np.dot(A_dense.T, A_dense)), A_dense.T)
@@ -152,7 +152,7 @@ def singular_value_decomposition(A):
 
 action = input("Tasta 1 pentru a genera random, tasta 2 pentru a parsa fisierele\n")
 if action == "1":
-    n = 100
+    n = 3
     random_matrix = generate_random_sparse_matrix(n)
     pp = pprint.PrettyPrinter(width=100, compact=True)
     pp.pprint(random_matrix)
